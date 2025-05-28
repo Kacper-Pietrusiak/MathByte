@@ -120,6 +120,7 @@ export default function BookPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            studentId: user.id,
             date: formattedDate,
             time: selectedHour,
             email: user.emailAddresses[0]?.emailAddress,

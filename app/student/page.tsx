@@ -1,260 +1,234 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { DateTime } from "luxon";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { motion } from "framer-motion";
-import { 
-  BookOpen, 
-  Calendar as CalendarIcon, 
-  MessageSquare, 
-  Rocket, 
-  Trophy,
-  AlertCircle,
-  ArrowLeft
-} from "lucide-react";
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import Link from "next/link";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-// Mock data - replace with actual data from your backend
-const studentData = {
-  name: "Ania",
-  overallProgress: 30,
-  currentCourse: {
-    name: "Math Master - Grade 4",
-    progress: 25,
-    lessonsCompleted: 5,
-    totalLessons: 20
-  },
-  courses: [
-    {
-      id: 1,
-      title: "Multiplication Basics - Level 2",
-      status: "In Progress",
-      thumbnail: "/course-thumb-1.jpg"
-    },
-    {
-      id: 2,
-      title: "Fractions Fundamentals",
-      status: "Not Started",
-      thumbnail: "/course-thumb-2.jpg"
-    }
-  ],
-  upcomingLessons: [
-    {
-      id: 1,
-      date: "2024-03-20T15:00:00",
-      teacher: "Ms. Johnson",
-      isOnline: true
-    }
-  ],
-  assignments: [
-    {
-      id: 1,
-      title: "Multiplication Quiz",
-      course: "Multiplication Basics",
-      status: "To Do"
-    }
-  ],
-  messages: [
-    {
-      id: 1,
-      type: "new_course",
-      content: "You've been enrolled in Fractions Fundamentals!"
-    }
-  ]
+const polishMonths: Record<string, string> = {
+  "01": "stycznia",
+  "02": "lutego",
+  "03": "marca",
+  "04": "kwietnia",
+  "05": "maja",
+  "06": "czerwca",
+  "07": "lipca",
+  "08": "sierpnia",
+  "09": "września",
+  "10": "października",
+  "11": "listopada",
+  "12": "grudnia"
 };
 
+interface Lesson {
+  id: number;
+  title: string;
+  date: string;
+  duration: number;
+  description: string | null;
+  studentId: string;
+  isOnline: boolean;
+  meetingUrl: string;
+  isCancelled?: boolean;
+}
+
 export default function StudentDashboard() {
+  const { user } = useUser();
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchLessons = async () => {
+      try {
+        const studentId = user.id;
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/lessons?filters[studentId][$eq]=${studentId}&sort=date:asc`,
+          {
+            headers: {
+              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+            },
+          }
+        );
+        const data = await res.json();
+        setLessons(data.data);
+      } catch (error) {
+        console.error("❌ Failed to fetch lessons", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLessons();
+  }, [user]);
+
+
+  const cancelLesson = async (lessonId: number) => {
+    const confirm = window.confirm("Czy na pewno chcesz odwołać lekcję? Możesz wybrać termin znajdujący się w ciągu 7 dni.");
+    if (!confirm) return;
+  
+    setLoading(true);
+    try {
+      const res = await fetch("https://n8n.kacperpietrusiak.pl/webhook/cancel-lesson", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ lessonId })
+      });
+  
+      const response = await res.json();
+  
+      if (!res.ok || response.status !== "success") {
+        throw new Error(response.message || "Nie udało się odwołać lekcji.");
+      }
+  
+      toast.success("Lekcja została odwołana. Możesz wybrać termin znajdujący się w ciągu 7 dni.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      
+      setLessons((prev) =>
+        prev.map((lesson) =>
+          lesson.id === lessonId ? { ...lesson, isCancelled: true } : lesson
+        )
+      );
+    } catch (error) {
+      console.error(error);
+      toast.error("Wystąpił błąd podczas odwoływania lekcji.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  
+  const formatPolishDate = (date: DateTime) => {
+    const day = date.day;
+    const month = polishMonths[date.month.toString().padStart(2, "0")];
+    const year = date.year;
+    const time = date.toFormat("HH:mm");
+    return `${day} ${month} ${year}, ${time}`;
+  };
+
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header with back button and user profile */}
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <ToastContainer />
       <header className="sticky top-0 z-50 bg-white border-b shadow-sm">
         <div className="container mx-auto flex items-center justify-between h-16 px-4">
-          <Button asChild variant="ghost" className="flex items-center gap-2">
-            <Link href="/">
-              <ArrowLeft className="w-4 h-4" />
-              Go Back
-            </Link>
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button asChild variant="ghost" className="flex items-center gap-2">
+              <Link href="/">← Wróć</Link>
+            </Button>
+            <h1 className="text-lg font-semibold">Panel Studenta</h1>
+          </div>
           <UserButton afterSignOutUrl="/" />
         </div>
       </header>
 
       <main className="flex-grow container mx-auto p-6 space-y-8">
-        {/* Welcome Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg p-6 text-white"
-        >
-          <div className="flex items-center space-x-4">
-            <Avatar className="h-16 w-16 border-2 border-white">
-              <AvatarImage src="/student-avatar.jpg" />
-              <AvatarFallback>AN</AvatarFallback>
-            </Avatar>
-            <div>
-              <h1 className="text-2xl font-bold">Hi, {studentData.name}!</h1>
-              <p className="text-lg">Ready to learn something new today?</p>
-            </div>
-          </div>
-          <div className="mt-4">
-            <div className="flex justify-between mb-2">
-              <span>Overall Progress</span>
-              <span>{studentData.overallProgress}%</span>
-            </div>
-            <Progress value={studentData.overallProgress} className="h-2" />
-          </div>
-        </motion.div>
-
-        {/* Main Content Tabs */}
-        <Tabs defaultValue="progress" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="progress">Progress</TabsTrigger>
-            <TabsTrigger value="courses">Courses</TabsTrigger>
-            <TabsTrigger value="lessons">Lessons</TabsTrigger>
-            <TabsTrigger value="assignments">Assignments</TabsTrigger>
+        <Tabs defaultValue="lessons" className="space-y-4">
+          <TabsList className="w-full">
+            <TabsTrigger value="lessons">Lekcje</TabsTrigger>
           </TabsList>
 
-          {/* Progress Tab */}
-          <TabsContent value="progress">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Trophy className="h-5 w-5" />
-                  Your Progress
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="font-semibold mb-2">{studentData.currentCourse.name}</h3>
-                    <div className="flex justify-between mb-2">
-                      <span>Progress</span>
-                      <span>{studentData.currentCourse.progress}%</span>
-                    </div>
-                    <Progress value={studentData.currentCourse.progress} className="h-2" />
-                    <p className="text-sm text-gray-500 mt-2">
-                      Lessons completed: {studentData.currentCourse.lessonsCompleted} / {studentData.currentCourse.totalLessons}
-                    </p>
-                  </div>
-                  <Button className="w-full">Continue Course</Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Courses Tab */}
-          <TabsContent value="courses">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {studentData.courses.map((course) => (
-                <Card key={course.id}>
-                  <CardContent className="p-4">
-                    <div className="aspect-video bg-gray-100 rounded-lg mb-4" />
-                    <h3 className="font-semibold">{course.title}</h3>
-                    <p className="text-sm text-gray-500 mb-4">{course.status}</p>
-                    <Button variant="outline" className="w-full">
-                      {course.status === "Not Started" ? "Start Course" : "Continue"}
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          {/* Lessons Tab */}
           <TabsContent value="lessons">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <CalendarIcon className="h-5 w-5" />
-                  Upcoming Lessons
+                  Nadchodzące Lekcje
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {studentData.upcomingLessons.map((lesson) => (
-                    <div key={lesson.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div>
-                        <p className="font-semibold">{new Date(lesson.date).toLocaleString()}</p>
-                        <p className="text-sm text-gray-500">with {lesson.teacher}</p>
-                      </div>
-                      <Button variant={lesson.isOnline ? "default" : "outline"}>
-                        {lesson.isOnline ? "Join Now" : "View Details"}
+                  {loading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+                    </div>
+                  ) : lessons.length === 0 ? (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500 mb-4">Brak nadchodzących lekcji</p>
+                      <Button asChild>
+                        <Link href="/book">Zarezerwuj Nową Lekcję</Link>
                       </Button>
                     </div>
-                  ))}
-                  <Button className="w-full">Book a New Lesson</Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                  ) : (
+                    <>
+                      {lessons.map((lesson) => {
+                        const localDate = DateTime.fromISO(lesson.date).setZone("Europe/Warsaw");
+                        const now = DateTime.now().setZone("Europe/Warsaw");
+                        const hoursToLesson = localDate.diff(now, "hours").hours;
+                        const canCancel = hoursToLesson >= 48;
 
-          {/* Assignments Tab */}
-          <TabsContent value="assignments">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5" />
-                  Assignments & Quizzes
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {studentData.assignments.map((assignment) => (
-                    <div key={assignment.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div>
-                        <p className="font-semibold">{assignment.title}</p>
-                        <p className="text-sm text-gray-500">{assignment.course}</p>
-                      </div>
-                      <Button variant="outline">Start</Button>
-                    </div>
-                  ))}
-                  <Button variant="ghost" className="w-full">See Results History</Button>
+                        return (
+                          <div
+                            key={lesson.id}
+                            className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg gap-4 bg-white hover:bg-gray-50 transition-colors"
+                          >
+                            <div className="space-y-1">
+                              <p className="font-semibold">{lesson.title}</p>
+                              <p className="text-sm text-gray-500">
+                                {formatPolishDate(localDate)} — {lesson.duration} min
+                              </p>
+                            </div>
+                            <div className="flex gap-2 flex-wrap justify-end">
+                              <Button variant="outline" size="sm">Szczegóły</Button>
+                              {lesson.isOnline && lesson.meetingUrl ? (
+                                <Button size="sm" asChild>
+                                  <Link href={lesson.meetingUrl} target="_blank">
+                                    Dołącz do Spotkania
+                                  </Link>
+                                </Button>
+                              ) : (
+                                <Button size="sm" variant="outline" disabled>
+                                  📍 Cieszyńska 46C, Ustroń
+                                </Button>
+                              )}
+                              {lesson.isCancelled ? (
+                                <Button size="sm" asChild>
+                                  <Link href={`/reschedule/${lesson.id}`}>Wybierz nowy termin</Link>
+                                </Button>
+                              ) : canCancel ? (
+                                <Button variant="outline" size="sm" onClick={() => cancelLesson(lesson.id)}>
+                                  Odwołaj lekcję
+                                </Button>
+                              ) : (
+                                <Button variant="outline" size="sm" disabled>
+                                  Nie można już odwołać
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                      <Button asChild className="w-full mt-6">
+                        <Link href="/book">Zarezerwuj Nową Lekcję</Link>
+                      </Button>
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Button className="flex items-center gap-2">
-            <Rocket className="h-4 w-4" />
-            Buy a 1:1 Lesson
-          </Button>
-          <Button className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4" />
-            Join a New Course
-          </Button>
-          <Button className="flex items-center gap-2">
-            <MessageSquare className="h-4 w-4" />
-            Message Your Teacher
-          </Button>
-        </div>
-
-        {/* Messages & Notifications */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5" />
-              Messages & Notifications
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {studentData.messages.map((message) => (
-                <div key={message.id} className="flex items-start gap-4 p-4 border rounded-lg">
-                  <AlertCircle className="h-5 w-5 text-blue-500" />
-                  <p>{message.content}</p>
-                </div>
-              ))}
-              <Button variant="ghost" className="w-full">View All Messages</Button>
-            </div>
-          </CardContent>
-        </Card>
       </main>
     </div>
   );
