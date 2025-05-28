@@ -71,7 +71,7 @@ export default function StudentDashboard() {
 
 
   const cancelLesson = async (lessonId: number) => {
-    const confirm = window.confirm("Czy na pewno chcesz odwołać lekcję? Możesz wybrać termin znajdujący się w ciągu 7 dni.");
+    const confirm = window.confirm("Czy na pewno chcesz odwołać lekcję? Możesz wybrać termin znajdujący sie w ciągu 7 dni.");
     if (!confirm) return;
   
     setLoading(true);
@@ -90,7 +90,7 @@ export default function StudentDashboard() {
         throw new Error(response.message || "Nie udało się odwołać lekcji.");
       }
   
-      toast.success("Lekcja została odwołana. Możesz wybrać termin znajdujący się w ciągu 7 dni.", {
+      toast.success("Lekcja została odwołana. Masz 7 dni na wybranie nowego terminu.", {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
@@ -204,7 +204,7 @@ export default function StudentDashboard() {
                               )}
                               {lesson.isCancelled ? (
                                 <Button size="sm" asChild>
-                                  <Link href={`/reschedule/${lesson.id}`}>Wybierz nowy termin</Link>
+                                  <Link href={`/student/reschedule/${lesson.id}`}>Wybierz nowy termin</Link>
                                 </Button>
                               ) : canCancel ? (
                                 <Button variant="outline" size="sm" onClick={() => cancelLesson(lesson.id)}>
