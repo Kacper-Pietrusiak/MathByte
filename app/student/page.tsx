@@ -8,120 +8,28 @@ import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserButton, useUser } from "@clerk/nextjs";
 import Link from "next/link";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Lesson } from "@/types/lesson";
+import { cancelLesson, fetchLessons, formatPolishDate } from "@/lib/lessons";
 
-const polishMonths: Record<string, string> = {
-  "01": "stycznia",
-  "02": "lutego",
-  "03": "marca",
-  "04": "kwietnia",
-  "05": "maja",
-  "06": "czerwca",
-  "07": "lipca",
-  "08": "sierpnia",
-  "09": "września",
-  "10": "października",
-  "11": "listopada",
-  "12": "grudnia"
-};
-
-interface Lesson {
-  id: number;
-  title: string;
-  date: string;
-  duration: number;
-  description: string | null;
-  studentId: string;
-  isOnline: boolean;
-  meetingUrl: string;
-  isCancelled?: boolean;
-}
 
 export default function StudentDashboard() {
   const { user } = useUser();
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchLessons = async () => {
-    try {
-      if (!user) return;
-      const studentId = user.id;
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/lessons?filters[studentId][$eq]=${studentId}&sort=date:asc`,
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-          },
-        }
-      );
-      const data = await res.json();
-      setLessons(data.data);
-    } catch (error) {
-      console.error("❌ Failed to fetch lessons", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+ 
   useEffect(() => {
     if (!user) return;
-    fetchLessons();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    const loadLessons = async () => {
+      const fetchedLessons = await fetchLessons(user.id);
+      setLessons(fetchedLessons);
+      setLoading(false);
+    };
+    loadLessons();
   }, [user]);
 
-  const cancelLesson = async (lessonId: number) => {
-    const confirm = window.confirm("Czy na pewno chcesz odwołać lekcję? Możesz wybrać termin znajdujący sie w ciągu 7 dni.");
-    if (!confirm) return;
-
-    setLoading(true);
-    try {
-      const res = await fetch("https://n8n.kacperpietrusiak.pl/webhook/cancel-lesson", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ lessonId })
-      });
-
-      const response = await res.json();
-
-      if (!res.ok || response.status !== "success") {
-        throw new Error(response.message || "Nie udało się odwołać lekcji.");
-      }
-
-      toast.success("Lekcja została odwołana. Masz 7 dni na wybranie nowego terminu.", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-
-      await fetchLessons(); // Odśwież dane
-    } catch (error) {
-      console.error(error);
-      toast.error("Wystąpił błąd podczas odwoływania lekcji.", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatPolishDate = (date: DateTime) => {
-    const day = date.day;
-    const month = polishMonths[date.month.toString().padStart(2, "0")];
-    const year = date.year;
-    const time = date.toFormat("HH:mm");
-    return `${day} ${month} ${year}, ${time}`;
-  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -134,7 +42,12 @@ export default function StudentDashboard() {
             </Button>
             <h1 className="text-lg font-semibold">Panel Studenta</h1>
           </div>
-          <UserButton afterSignOutUrl="/" />
+          <div className="flex items-center gap-4">
+            <Button asChild variant="ghost">
+              <Link href="/student/ai-toolbox">🧠 AI Toolbox</Link>
+            </Button>
+            <UserButton afterSignOutUrl="/" />
+          </div>
         </div>
       </header>
 
@@ -202,9 +115,18 @@ export default function StudentDashboard() {
                                   <Link href={`/student/reschedule/${lesson.id}`}>Wybierz nowy termin</Link>
                                 </Button>
                               ) : canCancel ? (
-                                <Button variant="outline" size="sm" onClick={() => cancelLesson(lesson.id)}>
-                                  Odwołaj lekcję
-                                </Button>
+                                <Button
+  variant="outline"
+  size="sm"
+  onClick={async () => {
+    await cancelLesson(lesson.id);
+    if (!user) return;
+    await fetchLessons(user.id).then(setLessons);
+  }}
+>
+  Odwołaj lekcję
+</Button>
+
                               ) : (
                                 <Button variant="outline" size="sm" disabled>
                                   Nie można już odwołać

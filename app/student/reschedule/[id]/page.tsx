@@ -8,19 +8,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { Video, User } from "lucide-react";
+import { Lesson } from "@/types/lesson";
 
-interface Lesson {
-  id: number;
-  documentId: string;
-  title: string;
-  date: string;
-  duration: number;
-  description: string | null;
-  studentId: string;
-  isOnline: boolean;
-  meetingUrl: string | null;
-  [key: string]: string | number | boolean | null;
-}
 
 export default function ReschedulePage() {
   const { id } = useParams();
