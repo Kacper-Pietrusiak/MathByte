@@ -43,37 +43,37 @@ export default function StudentDashboard() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchLessons = async () => {
+    try {
+      if (!user) return;
+      const studentId = user.id;
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/lessons?filters[studentId][$eq]=${studentId}&sort=date:asc`,
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+      const data = await res.json();
+      setLessons(data.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch lessons", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!user) return;
-
-    const fetchLessons = async () => {
-      try {
-        const studentId = user.id;
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/lessons?filters[studentId][$eq]=${studentId}&sort=date:asc`,
-          {
-            headers: {
-              Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-            },
-          }
-        );
-        const data = await res.json();
-        setLessons(data.data);
-      } catch (error) {
-        console.error("❌ Failed to fetch lessons", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchLessons();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
-
 
   const cancelLesson = async (lessonId: number) => {
     const confirm = window.confirm("Czy na pewno chcesz odwołać lekcję? Możesz wybrać termin znajdujący sie w ciągu 7 dni.");
     if (!confirm) return;
-  
+
     setLoading(true);
     try {
       const res = await fetch("https://n8n.kacperpietrusiak.pl/webhook/cancel-lesson", {
@@ -83,13 +83,13 @@ export default function StudentDashboard() {
         },
         body: JSON.stringify({ lessonId })
       });
-  
+
       const response = await res.json();
-  
+
       if (!res.ok || response.status !== "success") {
         throw new Error(response.message || "Nie udało się odwołać lekcji.");
       }
-  
+
       toast.success("Lekcja została odwołana. Masz 7 dni na wybranie nowego terminu.", {
         position: "top-right",
         autoClose: 5000,
@@ -98,12 +98,8 @@ export default function StudentDashboard() {
         pauseOnHover: true,
         draggable: true,
       });
-      
-      setLessons((prev) =>
-        prev.map((lesson) =>
-          lesson.id === lessonId ? { ...lesson, isCancelled: true } : lesson
-        )
-      );
+
+      await fetchLessons(); // Odśwież dane
     } catch (error) {
       console.error(error);
       toast.error("Wystąpił błąd podczas odwoływania lekcji.", {
@@ -118,8 +114,7 @@ export default function StudentDashboard() {
       setLoading(false);
     }
   };
-  
-  
+
   const formatPolishDate = (date: DateTime) => {
     const day = date.day;
     const month = polishMonths[date.month.toString().padStart(2, "0")];

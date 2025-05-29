@@ -93,6 +93,7 @@ export default function ReschedulePage() {
     };
 
     fetchAvailableHours();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate, lesson]);
 
   const handleReschedule = async () => {
