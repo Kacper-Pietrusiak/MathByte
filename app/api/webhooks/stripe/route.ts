@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { prisma } from "@/lib/prisma";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-04-30.basil",
@@ -71,35 +70,19 @@ export async function POST(req: Request) {
       return new NextResponse("Missing email", { status: 400 });
     }
 
-    try {
-      await prisma.lesson.create({
-        data: {
-          studentId,
-          date,
-          time,
-          status: "confirmed",
-        },
-      });
-
-      console.log(`✅ Lesson booked for ${date} at ${time} (Student: ${studentId})`);
-    } catch (err) {
-      console.error("❌ Failed to create lesson in DB:", err);
-      return new NextResponse("DB error", { status: 500 });
-    }
-
     // N8N HOOK — utworzenie wydarzenia w Google Calendar
     try {
       const n8nWebhookUrl = "https://n8n.kacperpietrusiak.pl/webhook/book-lesson";
-    
+
       const payload = {
         date,
         time,
         email,
         name: session.customer_details?.name || "Uczeń",
       };
-    
-      console.log("📡 SDending payload to N8N:", payload);
-    
+
+      console.log("📡 Sending payload to N8N:", payload);
+
       const res = await fetch(n8nWebhookUrl, {
         method: "POST",
         headers: {
@@ -108,20 +91,19 @@ export async function POST(req: Request) {
         },
         body: JSON.stringify(payload),
       });
-      
+
       const responseText = await res.text();
-    
+
       if (!res.ok) {
         console.error(`❌ N8N responded with status ${res.status}`);
         console.error("❌ Response body:", responseText);
         throw new Error(`N8N webhook call failed`);
       }
-    
+
       console.log("📤 N8N triggered successfully:", responseText);
     } catch (err) {
       console.error("❌ Failed to call N8N webhook:", err);
     }
-    
 
     return new NextResponse("Webhook received", { status: 200 });
   }
