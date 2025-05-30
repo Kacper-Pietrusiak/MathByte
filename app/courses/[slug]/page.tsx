@@ -3,11 +3,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
-interface Params {
+type PageProps = {
   params: {
     slug: string;
   };
-}
+};
+
 
 interface Tag {
   id: number;
@@ -20,7 +21,7 @@ interface Module {
   order: number;
 }
 
-export default async function CourseDetailPage({ params }: Params) {
+export default async function CourseDetailPage({ params }: PageProps) {
   const res = await fetch(`http://192.168.0.181:1337/courses?slug=${params.slug}`, {
     cache: "no-store",
   });
