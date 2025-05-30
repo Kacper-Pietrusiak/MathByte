@@ -1,19 +1,16 @@
-// pages/api/interest.ts
-import { NextApiRequest, NextApiResponse } from "next";
+// app/api/interest/route.ts
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ message: "Method Not Allowed" });
-  }
+import { NextResponse } from "next/server";
 
-  const { name, email, note, courseSlug } = req.body;
+export async function POST(req: Request) {
+  const body = await req.json();
+  const { name, email, note, courseSlug } = body;
 
-  // Walidacja minimalna
   if (!name || !email || !courseSlug) {
-    return res.status(400).json({ message: "Brak wymaganych pól" });
+    return NextResponse.json({ message: "Brak wymaganych pól" }, { status: 400 });
   }
 
-  // 🔧 Tu możesz wysłać do Strapi, Google Sheets, n8n, itd.
+  // 🔧 Możesz tu wysłać do Strapi, Google Sheets, n8n, itd.
   console.log("Zgłoszenie zainteresowania:", {
     courseSlug,
     name,
@@ -21,5 +18,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     note,
   });
 
-  return res.status(200).json({ message: "Zgłoszenie przyjęte" });
+  return NextResponse.json({ message: "Zgłoszenie przyjęte" });
+}
+
+export function GET() {
+  return NextResponse.json({ message: "Method Not Allowed" }, { status: 405 });
 }
