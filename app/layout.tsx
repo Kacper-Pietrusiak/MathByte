@@ -25,8 +25,6 @@ export const metadata: Metadata = {
   title: 'MathByte',
   description: 'Korepetcje z matematyki i informatyki | Ustróń | online',
   icons: '/favicon.ico',
-  themeColor: '#ffffff',
-  // Dodajemy preconnect dla lepszego LCP i Clerk
   other: {
     'preconnect-clerk': 'https://clerk.mathbyte.pl',
     'preconnect-next-image': '/_next/image',
