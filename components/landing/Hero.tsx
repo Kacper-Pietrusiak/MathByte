@@ -42,10 +42,13 @@ export function Hero() {
   alt="Ilustracja korepetycji z matematyki"
   width={360}
   height={360}
-  className="drop-shadow-xl w-full h-auto"
   priority
-  decoding="auto"
+  loading="eager"
+  decoding="async"
+  sizes="(max-width: 768px) 80vw, 360px"
+  className="drop-shadow-xl mx-auto md:mx-0"
 />
+
 
       </div>
     </section>
