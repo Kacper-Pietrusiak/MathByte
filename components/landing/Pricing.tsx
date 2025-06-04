@@ -57,10 +57,10 @@ export function Pricing() {
                 <p className="text-4xl font-bold mb-2 text-center text-blue-400">
                   {plan.price}
                 </p>
-                <p className="text-gray-400 mb-6 text-center text-sm italic">
+                <p className="text-gray-400 mb-6 text-center text-sm font-semibold italic">
                   {plan.description}
                 </p>
-                <ul className="space-y-4 text-sm text-gray-300 mb-8">
+                <ul className="space-y-4 text-sm font-semibold text-gray-300 mb-8">
                   {plan.features.map((feature, i) => (
                     <li key={i} className="flex items-start">
                       <span className="text-green-500 mr-2 mt-1">✓</span>

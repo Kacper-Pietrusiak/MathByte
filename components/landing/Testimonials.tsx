@@ -49,7 +49,7 @@ export function Testimonials() {
               </div>
               <div className="mt-auto text-center">
                 <p className="font-bold text-gray-900 dark:text-white">{q.name}</p>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">{q.role}</p>
+                <p className="text-gray-500 dark:text-gray-400 font-semibold text-sm">{q.role}</p>
               </div>
             </div>
           ))}

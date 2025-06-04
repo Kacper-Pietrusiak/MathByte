@@ -11,7 +11,7 @@ export function Hero() {
         <div>
           <div className="flex items-center gap-2 mb-4">
             <Users className="w-5 h-5 text-green-600" />
-            <p className="text-sm text-gray-500">Ponad 10 zadowolonych uczniów</p>
+            <p className="text-sm text-gray-500 font-semibold">Ponad 10 zadowolonych uczniów</p>
           </div>
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight text-balance">
   Przyszłość nauki<br />

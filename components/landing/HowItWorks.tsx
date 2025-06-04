@@ -45,7 +45,7 @@ export function HowItWorks() {
               </div>
               <div>
                 <h3 className="font-semibold text-lg">{step.title}</h3>
-                <p className="text-sm text-gray-300">{step.text}</p>
+                <p className="text-sm font-semibold text-gray-600">{step.text}</p>
               </div>
             </div>
           ))}
@@ -53,11 +53,14 @@ export function HowItWorks() {
 
         {/* Ilustracja */}
         <div className="w-full lg:w-1/2 flex justify-center">
-          <Image
-            src="/HowItWorks.png"
-            alt="Ilustracja procesu"
-            width={500}
-            height={500}
+        <Image
+  src="/HowItWorks.png"
+  alt="Ilustracja procesu"
+  width={500}
+  height={500}
+  loading="lazy"
+  decoding="async"
+  sizes="(max-width: 768px) 100vw, 500px"
           />
         </div>
       </div>

@@ -35,7 +35,7 @@ export function FAQ() {
       <div className="container mx-auto px-4 max-w-6xl flex flex-col md:flex-row items-center justify-center gap-x-24 gap-y-10">
         {/* LEWA STRONA */}
         <div className="w-full md:w-1/2 max-w-md">
-          <p className="text-blue-500 font-semibold text-sm uppercase tracking-wide">Najczęściej zadawane</p>
+          <p className="text-blue-700 font-semibold text-sm uppercase tracking-wide">Najczęściej zadawane</p>
           <h2 className="text-4xl font-extrabold text-gray-900 dark:text-white leading-tight mb-2">
             Pytania i odpowiedzi
           </h2>
@@ -75,7 +75,7 @@ export function FAQ() {
                   )}
                 </button>
                 {isOpen && (
-                  <div className="px-6 pb-4 text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
+                  <div className="px-6 pb-4 text-gray-600 dark:text-gray-300 text-sm font-semibold leading-relaxed">
                     {faq.answer}
                   </div>
                 )}

@@ -55,7 +55,7 @@ export function WhyMathbyte() {
                 <div className="text-3xl">{item.icon}</div>
                 <div>
                   <h3 className="font-semibold text-lg text-gray-900">{item.title}</h3>
-                  <p className="text-gray-600 text-sm mt-1">{item.desc}</p>
+                  <p className="text-gray-600 text-sm font-semibold mt-1">{item.desc}</p>
                 </div>
               </li>
             ))}
