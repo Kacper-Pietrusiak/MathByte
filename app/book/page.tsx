@@ -270,7 +270,7 @@ export default function BookPage() {
           hour === selectedHour
             ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-md"
             : "hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50"
-        }`}
+        }`} 
       >
         {hour}
       </Button>
