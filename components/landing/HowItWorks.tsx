@@ -30,7 +30,7 @@ export function HowItWorks() {
         {/* Lista kroków */}
         <div className="flex flex-col gap-6 w-full lg:w-1/2">
           <h2 className="text-4xl font-bold mb-4">Jak to działa?</h2>
-          <p className="text-gray-400 mb-6 text-sm">
+          <p className="text-gray-400 mb-6 font-semibold text-sm">
             Cały proces jest prosty i bez stresu – od rejestracji po pierwszą lekcję.
           </p>
           {steps.map((step, idx) => (
@@ -45,7 +45,7 @@ export function HowItWorks() {
               </div>
               <div>
                 <h3 className="font-semibold text-lg">{step.title}</h3>
-                <p className="text-sm font-semibold text-gray-600">{step.text}</p>
+                <p className="text-sm font-semibold text-gray-200">{step.text}</p>
               </div>
             </div>
           ))}

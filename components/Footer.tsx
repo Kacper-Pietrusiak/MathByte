@@ -35,6 +35,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-blue-400 transition-colors"
+                aria-label="Facebook"
               >
                 <FaFacebook className="w-6 h-6" />
               </a>
@@ -43,6 +44,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-blue-400 transition-colors"
+                aria-label="Instagram"
               >
                 <FaInstagram className="w-6 h-6" />
               </a>
