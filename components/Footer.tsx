@@ -2,7 +2,7 @@ import { FaEnvelope, FaPhone, FaFacebook, FaInstagram } from "react-icons/fa";
 
 export function Footer() {
   return (
-    <footer className="bg-black text-gray-400 pt-16 pb-8">
+    <footer className="bg-black text-gray-400 pt-16 pb-8 min-h-[200px]">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-3 gap-8 mb-12">
           {/* Dane kontaktowe */}

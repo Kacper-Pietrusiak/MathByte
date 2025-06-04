@@ -28,6 +28,7 @@ export const metadata: Metadata = {
   other: {
     'preconnect-clerk': 'https://clerk.mathbyte.pl',
     'preconnect-next-image': '/_next/image',
+    'preconnect-google': 'https://fonts.googleapis.com',
   },
 }
 
@@ -46,6 +47,7 @@ export default function RootLayout({
       <head>
           <link rel="preconnect" href="https://clerk.mathbyte.pl" />
           <link rel="preconnect" href="/_next/image" />
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
         </head>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           <div className="min-h-screen flex flex-col">
