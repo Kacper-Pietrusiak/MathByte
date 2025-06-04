@@ -13,8 +13,8 @@ const pl = { ...basePl, options: { ...basePl.options, weekStartsOn: 1 as Day } }
 
 function formatDateForAPI(date: Date): string {
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
 
@@ -30,23 +30,40 @@ export default function BookPage() {
   const [lessonType, setLessonType] = useState<LessonType>("in-person");
   const [isLoading, setIsLoading] = useState(false);
 
-
   const [lessonsRemaining, setLessonsRemaining] = useState<number | null>(null);
   const [lessonsExpiry, setLessonsExpiry] = useState<string | null>(null);
+
+  const [hoursLoading, setHoursLoading] = useState(false); // ✅ dodany loading
 
   useEffect(() => {
     if (isLoaded && !user) router.push("/sign-in");
   }, [isLoaded, user, router]);
 
+  // ✅ Prefetch today + tomorrow
+  useEffect(() => {
+    const preload = async () => {
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+
+      const dates = [today, tomorrow].map(formatDateForAPI);
+      await Promise.all(dates.map((date) => fetch(`/api/availability?date=${date}`)));
+    };
+
+    preload();
+  }, []);
+
   useEffect(() => {
     if (!selectedDate) return;
 
     const fetchSlots = async () => {
+      setHoursLoading(true);
       const formattedDate = formatDateForAPI(selectedDate);
       const res = await fetch(`/api/availability?date=${formattedDate}`);
       const data = await res.json();
       setAvailableHours(data.hours || []);
       setSelectedHour(null);
+      setHoursLoading(false);
     };
 
     fetchSlots();
@@ -82,15 +99,14 @@ export default function BookPage() {
 
   const handleBooking = async () => {
     if (!selectedDate || !selectedHour || !user) return;
-  
+
     setIsLoading(true);
-  
+
     try {
       const formattedDate = formatDateForAPI(selectedDate);
       const start = new Date(`${formattedDate}T${selectedHour}:00`);
       const end = new Date(start.getTime() + 60 * 60 * 1000);
-  
-      // Użytkownik ma kredyt → rezerwujemy przez n8n
+
       if (lessonsRemaining && lessonsRemaining > 0) {
         const res = await fetch("https://n8n.kacperpietrusiak.pl/webhook/book-with-credit", {
           method: "POST",
@@ -105,17 +121,15 @@ export default function BookPage() {
             lessonType,
           }),
         });
-  
+
         const data = await res.json();
-  
+
         if (data.status === "success") {
           router.push("/success");
         } else {
           alert(data.message || "Wystąpił błąd podczas rezerwacji. Spróbuj ponownie.");
         }
-      } 
-      // Brak kredytu → przejście do płatności
-      else {
+      } else {
         const res = await fetch("/api/checkout-session", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -129,7 +143,7 @@ export default function BookPage() {
             mode: "single",
           }),
         });
-  
+
         const { url } = await res.json();
         if (url) window.location.href = url;
       }
@@ -140,9 +154,6 @@ export default function BookPage() {
       setIsLoading(false);
     }
   };
-  
-  
-  
 
   const handlePackagePurchase = async () => {
     const res = await fetch("/api/checkout-session", {
@@ -237,29 +248,36 @@ export default function BookPage() {
                 <h2 className="text-xl font-semibold text-gray-800">2. Wybierz godzinę</h2>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {availableHours.length === 0 ? (
-                  <div className="col-span-3 bg-gray-50 rounded-xl p-6 text-center border border-gray-100">
-                    <p className="text-sm text-gray-500">
-                      Wybierz datę, aby zobaczyć dostępne godziny
-                    </p>
-                  </div>
-                ) : (
-                  availableHours.map((hour) => (
-                    <Button
-                      key={hour}
-                      variant={hour === selectedHour ? "default" : "outline"}
-                      onClick={() => setSelectedHour(hour)}
-                      className={`h-12 text-sm font-medium transition-all duration-200 ${
-                        hour === selectedHour
-                          ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-md"
-                          : "hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50"
-                      }`}
-                    >
-                      {hour}
-                    </Button>
-                  ))
-                )}
-              </div>
+  {hoursLoading ? (
+    <div className="col-span-3 text-center py-6">
+      <svg className="animate-spin h-6 w-6 text-gray-500 mx-auto" viewBox="0 0 24 24">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+      </svg>
+      <p className="mt-2 text-sm text-gray-500">Ładowanie godzin...</p>
+    </div>
+  ) : availableHours.length === 0 ? (
+    <div className="col-span-3 bg-gray-50 rounded-xl p-6 text-center border border-gray-100">
+      <p className="text-sm text-gray-500">Wybierz datę, aby zobaczyć dostępne godziny</p>
+    </div>
+  ) : (
+    availableHours.map((hour) => (
+      <Button
+        key={hour}
+        variant={hour === selectedHour ? "default" : "outline"}
+        onClick={() => setSelectedHour(hour)}
+        className={`h-12 text-sm font-medium transition-all duration-200 ${
+          hour === selectedHour
+            ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-md"
+            : "hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50"
+        }`}
+      >
+        {hour}
+      </Button>
+    ))
+  )}
+</div>
+
 
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
