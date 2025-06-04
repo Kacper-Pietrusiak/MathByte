@@ -39,7 +39,7 @@ export function Hero() {
         {/* Prawa kolumna - ilustracja */}
         <div className="w-full max-w-[360px] mx-auto md:mx-0">
           <Image
-            src="/hero.png"
+            src="/hero.webp"
             alt="Ilustracja korepetycji z matematyki"
             width={360}
             height={360}
