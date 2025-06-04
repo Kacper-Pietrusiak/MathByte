@@ -45,7 +45,7 @@ export function HowItWorks() {
               </div>
               <div>
                 <h3 className="font-semibold text-lg">{step.title}</h3>
-                <p className="text-sm font-semibold text-gray-200">{step.text}</p>
+                <p className="text-sm font-semibold text-white/90">{step.text}</p>
               </div>
             </div>
           ))}
