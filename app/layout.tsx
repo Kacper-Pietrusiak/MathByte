@@ -12,16 +12,25 @@ import { ToastProvider } from '@/components/ToastProvider'
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
+  display: 'swap',
 })
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
   title: 'MathByte',
   description: 'Korepetcje z matematyki i informatyki | Ustróń | online',
+  icons: '/favicon.ico',
+  themeColor: '#ffffff',
+  // Dodajemy preconnect dla lepszego LCP i Clerk
+  other: {
+    'preconnect-clerk': 'https://clerk.mathbyte.pl',
+    'preconnect-next-image': '/_next/image',
+  },
 }
 
 export default function RootLayout({
@@ -35,7 +44,11 @@ export default function RootLayout({
         signInUrl="/sign-in"
         signUpUrl="/sign-up"
     >
-      <html lang="en">
+      <html lang="pl">
+      <head>
+          <link rel="preconnect" href="https://clerk.mathbyte.pl" />
+          <link rel="preconnect" href="/_next/image" />
+        </head>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           <div className="min-h-screen flex flex-col">
             <Navbar />

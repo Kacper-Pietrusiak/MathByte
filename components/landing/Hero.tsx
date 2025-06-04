@@ -37,16 +37,16 @@ export function Hero() {
         </div>
 
         {/* Prawa kolumna - ilustracja */}
-        <div className="w-full max-w-[360px] mx-auto md:mx-0">
-          <Image
-            src="/hero.webp"
-            alt="Ilustracja korepetycji z matematyki"
-            width={360}
-            height={360}
-            className="object-contain drop-shadow-xl w-full h-auto"
-            priority
-          />
-        </div>
+        <Image
+  src="/hero.webp"
+  alt="Ilustracja korepetycji z matematyki"
+  width={360}
+  height={360}
+  className="drop-shadow-xl w-full h-auto"
+  priority
+  decoding="auto"
+/>
+
       </div>
     </section>
   );
