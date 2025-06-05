@@ -2,6 +2,6 @@
 module.exports = {
     siteUrl: 'https://mathbyte.pl',
     generateRobotsTxt: true,
-    // Opcjonalnie: wyklucz ścieżki, ustaw częstotliwość aktualizacji itd.
+    exclude: ['/admin/**'],
   }
   
