@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
-<url><loc>https://mathbyte.pl/regulamin</loc><lastmod>2025-06-05T17:30:54.905Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://mathbyte.pl/success</loc><lastmod>2025-06-05T17:30:54.906Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://mathbyte.pl/book</loc><lastmod>2025-06-05T17:30:54.906Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://mathbyte.pl/courses</loc><lastmod>2025-06-05T17:30:54.906Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://mathbyte.pl</loc><lastmod>2025-06-05T17:30:54.906Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://mathbyte.pl/student</loc><lastmod>2025-06-05T17:30:54.906Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://mathbyte.pl/success</loc><lastmod>2025-06-05T17:41:00.644Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://mathbyte.pl/student</loc><lastmod>2025-06-05T17:41:00.645Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://mathbyte.pl/book</loc><lastmod>2025-06-05T17:41:00.645Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://mathbyte.pl/courses</loc><lastmod>2025-06-05T17:41:00.645Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://mathbyte.pl/regulamin</loc><lastmod>2025-06-05T17:41:00.645Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://mathbyte.pl/admin</loc><lastmod>2025-06-05T17:41:00.645Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://mathbyte.pl</loc><lastmod>2025-06-05T17:41:00.645Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
 </urlset>

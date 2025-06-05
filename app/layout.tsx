@@ -8,6 +8,8 @@ import './globals.css'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { ToastProvider } from '@/components/ToastProvider'
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from "@vercel/analytics/next"
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -58,6 +60,8 @@ export default function RootLayout({
             <Footer />
           </div>
           <ToastProvider />
+          <SpeedInsights />
+          <Analytics />
         </body>
       </html>
     </ClerkProvider>
