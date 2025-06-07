@@ -15,10 +15,10 @@ export function Pricing() {
     },
     {
       title: "Pakiet 4 lekcji",
-      price: "300 PLN",
+      price: "280 PLN",
       description: "4×60 minut • ważne przez 30 dni",
       features: [
-        "Oszczędzasz 20 PLN względem pojedynczych lekcji — to korzystny wybór przy regularnej nauce.",
+        "Oszczędzasz 15% względem pojedynczych lekcji — to korzystny wybór przy regularnej nauce.",
         "Masz pierwszeństwo w rezerwacji terminów na cały miesiąc.",
         "Możesz uczyć się raz w tygodniu lub intensywniej przed egzaminem.",
         "Regularność = lepsze efekty i trwałe zrozumienie materiału.",
@@ -27,11 +27,10 @@ export function Pricing() {
     },
     {
       title: "Pełna ścieżka (8 lekcji)",
-      price: "560 PLN",
-      description: "Kompletny kurs • 8×60 minut",
+      price: "Spytaj o dostepność",
+      description: "Kompletny program",
       features: [
         "Najlepszy wybór dla uczniów chcących przejść przez cały dział lub przygotować się kompleksowo do egzaminu.",
-        "Oszczędzasz aż 80 PLN względem pojedynczych lekcji — to aż 12,5% taniej.",
         "Dostęp do bonusowych materiałów: PDF, quizy, zadania z odpowiedziami, nagrania (opcjonalnie).",
         "Zajęcia są ułożone w logiczny program: od podstaw po poziom zaawansowany.",
         "Możliwość dopasowania ścieżki do celu: matura, egzamin 8-klasisty, poprawa ocen lub rozwój pasji.",
