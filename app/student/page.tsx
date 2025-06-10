@@ -1,230 +1,202 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { DateTime } from "luxon";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { UserButton, useUser } from "@clerk/nextjs";
-import Link from "next/link";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
+import {
+  BookOpen,
+  Trophy,
+  Calendar,
+  Clock,
+  ArrowRight,
+  GraduationCap,
+  BookCheck
+} from "lucide-react"
+import { useRouter } from "next/navigation"
 
-const polishMonths: Record<string, string> = {
-  "01": "stycznia",
-  "02": "lutego",
-  "03": "marca",
-  "04": "kwietnia",
-  "05": "maja",
-  "06": "czerwca",
-  "07": "lipca",
-  "08": "sierpnia",
-  "09": "września",
-  "10": "października",
-  "11": "listopada",
-  "12": "grudnia"
-};
-
-interface Lesson {
-  id: number;
-  title: string;
-  date: string;
-  duration: number;
-  description: string | null;
-  studentId: string;
-  isOnline: boolean;
-  meetingUrl: string;
-  isCancelled?: boolean;
+// Mock data - replace with real data from your API
+const stats = {
+  coursesInProgress: 3,
+  totalLessons: 24,
+  completedLessons: 12,
+  nextLesson: {
+    id: "123",
+    title: "Matematyka - Funkcje kwadratowe",
+    time: "Today at 15:00",
+    teacherName: "mgr Anna Kowalska",
+    status: "waiting" // waiting | live | ended
+  },
+  streakDays: 7,
+  xpPoints: 1250
 }
 
-export default function StudentDashboard() {
-  const { user } = useUser();
-  const [lessons, setLessons] = useState<Lesson[]>([]);
-  const [loading, setLoading] = useState(true);
+const recentCourses = [
+  {
+    id: 1,
+    title: "Matematyka - Poziom Podstawowy",
+    progress: 65,
+    lastActivity: "2 hours ago"
+  },
+  {
+    id: 2,
+    title: "Python dla początkujących",
+    progress: 30,
+    lastActivity: "Yesterday"
+  },
+  {
+    id: 3,
+    title: "Podstawy informatyki",
+    progress: 45,
+    lastActivity: "3 days ago"
+  }
+]
 
-  const fetchLessons = async () => {
-    try {
-      if (!user) return;
-      const studentId = user.id;
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/lessons?filters[studentId][$eq]=${studentId}&sort=date:asc`,
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
-          },
-        }
-      );
-      const data = await res.json();
-      setLessons(data.data);
-    } catch (error) {
-      console.error("❌ Failed to fetch lessons", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+export default function DashboardPage() {
+  const router = useRouter();
 
-  useEffect(() => {
-    if (!user) return;
-    fetchLessons();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
-  const cancelLesson = async (lessonId: number) => {
-    const confirm = window.confirm("Czy na pewno chcesz odwołać lekcję? Możesz wybrać termin znajdujący sie w ciągu 7 dni.");
-    if (!confirm) return;
-
-    setLoading(true);
-    try {
-      const res = await fetch("https://n8n.kacperpietrusiak.pl/webhook/cancel-lesson", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ lessonId })
-      });
-
-      const response = await res.json();
-
-      if (!res.ok || response.status !== "success") {
-        throw new Error(response.message || "Nie udało się odwołać lekcji.");
-      }
-
-      toast.success("Lekcja została odwołana. Masz 7 dni na wybranie nowego terminu.", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-
-      await fetchLessons(); // Odśwież dane
-    } catch (error) {
-      console.error(error);
-      toast.error("Wystąpił błąd podczas odwoływania lekcji.", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatPolishDate = (date: DateTime) => {
-    const day = date.day;
-    const month = polishMonths[date.month.toString().padStart(2, "0")];
-    const year = date.year;
-    const time = date.toFormat("HH:mm");
-    return `${day} ${month} ${year}, ${time}`;
+  const handleJoinLesson = () => {
+    router.push(`/student/lessons/${stats.nextLesson.id}`);
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <ToastContainer />
-      <header className="sticky top-0 z-50 bg-white border-b shadow-sm">
-        <div className="container mx-auto flex items-center justify-between h-16 px-4">
-          <div className="flex items-center gap-4">
-            <Button asChild variant="ghost" className="flex items-center gap-2">
-              <Link href="/">← Wróć</Link>
-            </Button>
-            <h1 className="text-lg font-semibold">Panel Studenta</h1>
+    <div className="container mx-auto py-8 px-4">
+      {/* Welcome Section */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight text-blue-700">Welcome back! 👋</h1>
+        <p className="text-muted-foreground mt-2">
+          Here&apos;s an overview of your learning progress
+        </p>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <Card className="p-4">
+          <div className="flex items-center space-x-2">
+            <BookOpen className="h-4 w-4 text-blue-700" />
+            <div>
+              <p className="text-sm text-muted-foreground">Active Courses</p>
+              <p className="text-2xl font-bold text-blue-700">{stats.coursesInProgress}</p>
+            </div>
           </div>
-          <UserButton afterSignOutUrl="/" />
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center space-x-2">
+            <Trophy className="h-4 w-4 text-blue-700" />
+            <div>
+              <p className="text-sm text-muted-foreground">XP Points</p>
+              <p className="text-2xl font-bold text-blue-700">{stats.xpPoints}</p>
+            </div>
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center space-x-2">
+            <Calendar className="h-4 w-4 text-blue-700" />
+            <div>
+              <p className="text-sm text-muted-foreground">Day Streak</p>
+              <p className="text-2xl font-bold text-blue-700">{stats.streakDays} days</p>
+            </div>
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center space-x-2">
+            <BookCheck className="h-4 w-4 text-blue-700" />
+            <div>
+              <p className="text-sm text-muted-foreground">Completed Lessons</p>
+              <p className="text-2xl font-bold text-blue-700">{stats.completedLessons}/{stats.totalLessons}</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* Next Lesson Card */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <Card className="col-span-2 p-6">
+          <h2 className="text-xl font-semibold text-blue-700 mb-4">Next Lesson</h2>
+          <div className="flex items-start space-x-4">
+            <div className="p-3 bg-blue-100 rounded-lg">
+              <Clock className="h-6 w-6 text-blue-700" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-medium text-blue-700">{stats.nextLesson.title}</h3>
+              <p className="text-sm text-muted-foreground mb-2">{stats.nextLesson.time}</p>
+              <div className="flex items-center space-x-3 text-sm">
+                <GraduationCap className="h-4 w-4 text-blue-700" />
+                <span className="text-blue-700">{stats.nextLesson.teacherName}</span>
+              </div>
+            </div>
+            <Button 
+              onClick={handleJoinLesson}
+              disabled={stats.nextLesson.status === "ended"}
+              className="bg-blue-700 hover:bg-blue-800 text-white"
+            >
+              Join Lesson
+            </Button>
+          </div>
+        </Card>
+
+        {/* Quick Actions Card */}
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold text-blue-700 mb-4">Quick Actions</h2>
+          <div className="space-y-3">
+            <Button 
+              variant="outline" 
+              className="w-full justify-between border-blue-200 hover:bg-blue-50"
+              onClick={() => router.push('/student/courses')}
+            >
+              Browse Courses <ArrowRight className="h-4 w-4 text-blue-700" />
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full justify-between border-blue-200 hover:bg-blue-50"
+              onClick={() => router.push('/student/schedule')}
+            >
+              Schedule Lesson <ArrowRight className="h-4 w-4 text-blue-700" />
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full justify-between border-blue-200 hover:bg-blue-50"
+              onClick={() => router.push('/student/resources')}
+            >
+              View Resources <ArrowRight className="h-4 w-4 text-blue-700" />
+            </Button>
+          </div>
+        </Card>
+      </div>
+
+      {/* Recent Courses */}
+      <div>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold text-blue-700">Recent Courses</h2>
+          <Button 
+            variant="link" 
+            className="text-blue-700"
+            onClick={() => router.push('/student/courses')}
+          >
+            View all courses
+          </Button>
         </div>
-      </header>
-
-      <main className="flex-grow container mx-auto p-6 space-y-8">
-        <Tabs defaultValue="lessons" className="space-y-4">
-          <TabsList className="w-full">
-            <TabsTrigger value="lessons">Lekcje</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="lessons">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CalendarIcon className="h-5 w-5" />
-                  Nadchodzące Lekcje
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {loading ? (
-                    <div className="flex items-center justify-center py-8">
-                      <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-                    </div>
-                  ) : lessons.length === 0 ? (
-                    <div className="text-center py-8">
-                      <p className="text-gray-500 mb-4">Brak nadchodzących lekcji</p>
-                      <Button asChild>
-                        <Link href="/book">Zarezerwuj Nową Lekcję</Link>
-                      </Button>
-                    </div>
-                  ) : (
-                    <>
-                      {lessons.map((lesson) => {
-                        const localDate = DateTime.fromISO(lesson.date).setZone("Europe/Warsaw");
-                        const now = DateTime.now().setZone("Europe/Warsaw");
-                        const hoursToLesson = localDate.diff(now, "hours").hours;
-                        const canCancel = hoursToLesson >= 48;
-
-                        return (
-                          <div
-                            key={lesson.id}
-                            className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg gap-4 bg-white hover:bg-gray-50 transition-colors"
-                          >
-                            <div className="space-y-1">
-                              <p className="font-semibold">{lesson.title}</p>
-                              <p className="text-sm text-gray-500">
-                                {formatPolishDate(localDate)} — {lesson.duration} min
-                              </p>
-                            </div>
-                            <div className="flex gap-2 flex-wrap justify-end">
-                              <Button variant="outline" size="sm">Szczegóły</Button>
-                              {lesson.isOnline && lesson.meetingUrl ? (
-                                <Button size="sm" asChild>
-                                  <Link href={lesson.meetingUrl} target="_blank">
-                                    Dołącz do Spotkania
-                                  </Link>
-                                </Button>
-                              ) : (
-                                <Button size="sm" variant="outline" disabled>
-                                  📍 Cieszyńska 46C, Ustroń
-                                </Button>
-                              )}
-                              {lesson.isCancelled ? (
-                                <Button size="sm" asChild>
-                                  <Link href={`/student/reschedule/${lesson.id}`}>Wybierz nowy termin</Link>
-                                </Button>
-                              ) : canCancel ? (
-                                <Button variant="outline" size="sm" onClick={() => cancelLesson(lesson.id)}>
-                                  Odwołaj lekcję
-                                </Button>
-                              ) : (
-                                <Button variant="outline" size="sm" disabled>
-                                  Nie można już odwołać
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
-                      <Button asChild className="w-full mt-6">
-                        <Link href="/book">Zarezerwuj Nową Lekcję</Link>
-                      </Button>
-                    </>
-                  )}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {recentCourses.map((course) => (
+            <Card 
+              key={course.id} 
+              className="p-4 hover:shadow-lg transition-shadow cursor-pointer"
+              onClick={() => router.push(`/student/courses/${course.id}`)}
+            >
+              <div className="flex justify-between items-start mb-3">
+                <h3 className="font-medium text-blue-700">{course.title}</h3>
+                <span className="text-xs text-muted-foreground">{course.lastActivity}</span>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Progress</span>
+                  <span className="font-medium text-blue-700">{course.progress}%</span>
                 </div>
-              </CardContent>
+                <Progress value={course.progress} className="h-2 bg-blue-100" />
+              </div>
             </Card>
-          </TabsContent>
-        </Tabs>
-      </main>
+          ))}
+        </div>
+      </div>
     </div>
-  );
+  )
 }

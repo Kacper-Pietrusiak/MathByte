@@ -1,12 +1,11 @@
 import { type Metadata } from 'next'
 import {
   ClerkProvider,
-  
 } from '@clerk/nextjs'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
-import { Navbar } from '@/components/Navbar'
-import { Footer } from '@/components/Footer'
+import { NavbarWrapper } from '@/components/NavbarWrapper'
+import { FooterWrapper } from '@/components/FooterWrapper'
 import { ToastProvider } from '@/components/ToastProvider'
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
@@ -41,23 +40,23 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider
-        publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-        signInUrl="/sign-in"
-        signUpUrl="/sign-up"
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      signInUrl="/sign-in"
+      signUpUrl="/sign-up"
     >
       <html lang="pl">
-      <head>
+        <head>
           <link rel="preconnect" href="https://clerk.mathbyte.pl" />
           <link rel="preconnect" href="/_next/image" />
           <link rel="preconnect" href="https://fonts.googleapis.com" />
         </head>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           <div className="min-h-screen flex flex-col">
-            <Navbar />
+            <NavbarWrapper />
             <main className="flex-1">
               {children}
             </main>
-            <Footer />
+            <FooterWrapper />
           </div>
           <ToastProvider />
           <SpeedInsights />
