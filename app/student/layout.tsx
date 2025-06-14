@@ -4,12 +4,14 @@ import {
   BookOpen, 
   LayoutDashboard, 
   GraduationCap,
-  Calendar,
   HelpCircle,
   BookOpenCheck,
   ArrowLeft,
   Bell,
-  FileText
+  FileText,
+  CreditCard,
+  Medal,
+  MessageCircle
 } from "lucide-react"
 
 const sidebarLinks = [
@@ -19,24 +21,14 @@ const sidebarLinks = [
     href: "/student"
   },
   {
-    label: "My Lessons",
-    icon: <BookOpenCheck className="w-4 h-4" />,
-    href: "/student/lessons"
-  },
-  {
     label: "My Courses",
     icon: <BookOpen className="w-4 h-4" />,
     href: "/student/courses"
   },
   {
-    label: "Schedule",
-    icon: <Calendar className="w-4 h-4" />,
-    href: "/student/schedule"
-  },
-  {
-    label: "Teachers",
-    icon: <GraduationCap className="w-4 h-4" />,
-    href: "/student/teachers"
+    label: "My Lessons",
+    icon: <BookOpenCheck className="w-4 h-4" />,
+    href: "/student/lessons"
   },
   {
     label: "Resources",
@@ -44,11 +36,32 @@ const sidebarLinks = [
     href: "/student/resources"
   },
   {
+    label: "AI Toolbox",
+    icon: <GraduationCap className="w-4 h-4" />,
+    href: "/student/ai"
+  },
+  {
+    label: "Messages",
+    icon: <MessageCircle className="w-4 h-4" />,
+    href: "/student/messages"
+  },
+  {
+    label: "Achievements",
+    icon: <Medal className="w-4 h-4" />,
+    href: "/student/achievements"
+  },
+  {
+    label: "Payments",
+    icon: <CreditCard className="w-4 h-4" />,
+    href: "/student/payments"
+  },
+  {
     label: "Support",
     icon: <HelpCircle className="w-4 h-4" />,
     href: "/student/support"
   }
 ]
+
 
 const studentNotices = [
   {
