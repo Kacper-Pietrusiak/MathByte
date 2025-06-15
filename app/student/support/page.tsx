@@ -76,14 +76,14 @@ export default function SupportPage() {
           <CardContent className="space-y-4">
             <div className="flex items-center space-x-2">
               <Mail className="h-5 w-5" />
-              <span>support@mathbyte.pl</span>
+              <span>k.pietrusiak@gmail.com</span>
             </div>
             <div className="flex items-center space-x-2">
               <Phone className="h-5 w-5" />
-              <span>+48 123 456 789</span>
+              <span>+48 661 355 309</span>
             </div>
             <p className="text-sm text-gray-500 mt-4">
-              Godziny pracy: Poniedziałek - Piątek, 9:00 - 17:00
+              Godziny pracy: Poniedziałek - Sobota, 7:00 - 20:00
             </p>
           </CardContent>
         </Card>
