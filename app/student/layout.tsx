@@ -4,45 +4,45 @@ import { useState } from "react"
 import { UserButton } from "@clerk/nextjs"
 import Link from "next/link"
 import {
-  BookOpen,
+  // BookOpen,
   LayoutDashboard,
-  GraduationCap,
+  // GraduationCap,
   HelpCircle,
   BookOpenCheck,
   ArrowLeft,
-  Bell,
-  FileText,
+  // Bell,
+  // FileText,
   CreditCard,
-  Medal,
-  MessageCircle,
+  // Medal,
+  // MessageCircle,
   Menu,
   X,
 } from "lucide-react"
 
 const sidebarLinks = [
   { label: "Dashboard", icon: <LayoutDashboard className="w-4 h-4" />, href: "/student" },
-  { label: "My Courses", icon: <BookOpen className="w-4 h-4" />, href: "/student/courses" },
-  { label: "My Lessons", icon: <BookOpenCheck className="w-4 h-4" />, href: "/student/lessons" },
-  { label: "Resources", icon: <FileText className="w-4 h-4" />, href: "/student/resources" },
-  { label: "AI Toolbox", icon: <GraduationCap className="w-4 h-4" />, href: "/student/ai" },
-  { label: "Messages", icon: <MessageCircle className="w-4 h-4" />, href: "/student/messages" },
-  { label: "Achievements", icon: <Medal className="w-4 h-4" />, href: "/student/achievements" },
-  { label: "Payments", icon: <CreditCard className="w-4 h-4" />, href: "/student/payments" },
-  { label: "Support", icon: <HelpCircle className="w-4 h-4" />, href: "/student/support" },
+  // { label: "My Courses", icon: <BookOpen className="w-4 h-4" />, href: "/student/courses" },
+  { label: "Moje lekcje", icon: <BookOpenCheck className="w-4 h-4" />, href: "/student/lessons" },
+  // { label: "Resources", icon: <FileText className="w-4 h-4" />, href: "/student/resources" },
+  // { label: "AI Toolbox", icon: <GraduationCap className="w-4 h-4" />, href: "/student/ai" },
+  // { label: "Messages", icon: <MessageCircle className="w-4 h-4" />, href: "/student/messages" },
+  // { label: "Achievements", icon: <Medal className="w-4 h-4" />, href: "/student/achievements" },
+  { label: "Płatności", icon: <CreditCard className="w-4 h-4" />, href: "/student/payments" },
+  { label: "Wsparcie", icon: <HelpCircle className="w-4 h-4" />, href: "/student/support" },
 ]
 
-const studentNotices = [
-  {
-    title: "Upcoming Lesson",
-    description: "Mathematics with Dr. Anna Kowalska in 30 minutes",
-    type: "info",
-  },
-  {
-    title: "New Materials Available",
-    description: "Check your resources for new study materials",
-    type: "info",
-  },
-]
+// const studentNotices = [
+//   {
+//     title: "Nadchodząca lekcja",
+//     description: "Matematyka z mgr Anną Kowalską za 30 minut",
+//     type: "info",
+//   },
+//   {
+//     title: "Nowe materiały dostępne",
+//     description: "Sprawdź swoje zasoby pod kątem nowych materiałów do nauki",
+//     type: "info",
+//   },
+// ]
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -87,7 +87,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
           ))}
         </nav>
 
-        <div className="p-4 border-t border-gray-800 space-y-2">
+        {/* <div className="p-4 border-t border-gray-800 space-y-2">
           {studentNotices.map((notice) => (
             <div
               key={notice.title}
@@ -102,7 +102,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
               </div>
             </div>
           ))}
-        </div>
+        </div> */}
 
         <div className="p-4 border-t border-gray-800 space-y-4">
           <div className="flex items-center gap-3 text-sm text-gray-300">
@@ -121,7 +121,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
             className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Platform
+            Powrót do platformy
           </Link>
         </div>
       </aside>

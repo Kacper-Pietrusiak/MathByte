@@ -1,81 +1,121 @@
 "use client"
 
+import { useEffect, useState, useCallback } from "react"
+import { useUser } from "@clerk/nextjs"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
 import {
-  BookOpen,
-  Trophy,
-  Calendar,
   Clock,
-  ArrowRight,
-  GraduationCap,
-  BookCheck
+  ArrowRight
 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { DateTime } from "luxon"
 
-// Mock data - replace with real data from your API
-const stats = {
-  coursesInProgress: 3,
-  totalLessons: 24,
-  completedLessons: 12,
-  nextLesson: {
-    id: "123",
-    title: "Matematyka - Funkcje kwadratowe",
-    time: "Today at 15:00",
-    teacherName: "mgr Anna Kowalska",
-    status: "waiting" // waiting | live | ended
-  },
-  streakDays: 7,
-  xpPoints: 1250
+interface Lesson {
+  id: number;
+  title: string;
+  date: string;
+  duration: number;
+  description: string | null;
+  studentId: string;
+  isOnline: boolean;
+  meetingUrl: string;
+  isCancelled?: boolean;
+  isRescheduled?: boolean;
 }
 
-const recentCourses = [
-  {
-    id: 1,
-    title: "Matematyka - Poziom Podstawowy",
-    progress: 65,
-    lastActivity: "2 hours ago"
-  },
-  {
-    id: 2,
-    title: "Python dla początkujących",
-    progress: 30,
-    lastActivity: "Yesterday"
-  },
-  {
-    id: 3,
-    title: "Podstawy informatyki",
-    progress: 45,
-    lastActivity: "3 days ago"
-  }
-]
+const polishMonths: Record<string, string> = {
+  "01": "stycznia",
+  "02": "lutego",
+  "03": "marca",
+  "04": "kwietnia",
+  "05": "maja",
+  "06": "czerwca",
+  "07": "lipca",
+  "08": "sierpnia",
+  "09": "września",
+  "10": "października",
+  "11": "listopada",
+  "12": "grudnia"
+};
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { user } = useUser();
+  const [nextLesson, setNextLesson] = useState<Lesson | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleJoinLesson = () => {
-    router.push(`/student/lessons/${stats.nextLesson.id}`);
+  const fetchNextLesson = useCallback(async () => {
+    try {
+      if (!user) return;
+      const studentId = user.id;
+      const now = new Date().toISOString();
+      
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/lessons?filters[studentId][$eq]=${studentId}&filters[date][$gt]=${now}&sort=date:asc&pagination[limit]=1`,
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}`,
+          },
+        }
+      );
+      const data = await res.json();
+      
+      if (data.data && data.data.length > 0) {
+        setNextLesson(data.data[0]);
+      }
+    } catch (error) {
+      console.error("❌ Failed to fetch next lesson", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    fetchNextLesson();
+  }, [user, fetchNextLesson]);
+
+  const formatPolishDate = (date: DateTime) => {
+    const day = date.day;
+    const month = polishMonths[date.month.toString().padStart(2, "0")];
+    const year = date.year;
+    const time = date.toFormat("HH:mm");
+    return `${day} ${month} ${year}, ${time}`;
+  };
+
+  const formatTimeUntil = (lessonDate: string) => {
+    const localDate = DateTime.fromISO(lessonDate).setZone("Europe/Warsaw");
+    const now = DateTime.now().setZone("Europe/Warsaw");
+    const diff = localDate.diff(now, ["days", "hours", "minutes"]);
+    
+    if (diff.days > 0) {
+      return `za ${diff.days} ${diff.days === 1 ? 'dzień' : diff.days < 5 ? 'dni' : 'dni'}`;
+    } else if (diff.hours > 0) {
+      return `za ${diff.hours} ${diff.hours === 1 ? 'godzinę' : diff.hours < 5 ? 'godziny' : 'godzin'}`;
+    } else {
+      return `za ${Math.round(diff.minutes)} ${Math.round(diff.minutes) === 1 ? 'minutę' : Math.round(diff.minutes) < 5 ? 'minuty' : 'minut'}`;
+    }
   };
 
   return (
     <div className="container mx-auto py-8 px-4">
       {/* Welcome Section */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-blue-700">Welcome back! 👋</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-blue-700">Witaj ponownie! 👋</h1>
         <p className="text-muted-foreground mt-2">
-          Here&apos;s an overview of your learning progress
+          Oto przegląd Twojego postępu w nauce
         </p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <Card className="p-4">
           <div className="flex items-center space-x-2">
-            <BookOpen className="h-4 w-4 text-blue-700" />
+            <BookCheck className="h-4 w-4 text-blue-700" />
             <div>
-              <p className="text-sm text-muted-foreground">Active Courses</p>
-              <p className="text-2xl font-bold text-blue-700">{stats.coursesInProgress}</p>
+              <p className="text-sm text-muted-foreground">Ukończone lekcje</p>
+              <p className="text-2xl font-bold text-blue-700">{stats.completedLessons}/{stats.totalLessons}</p>
             </div>
           </div>
         </Card>
@@ -83,7 +123,7 @@ export default function DashboardPage() {
           <div className="flex items-center space-x-2">
             <Trophy className="h-4 w-4 text-blue-700" />
             <div>
-              <p className="text-sm text-muted-foreground">XP Points</p>
+              <p className="text-sm text-muted-foreground">Punkty XP</p>
               <p className="text-2xl font-bold text-blue-700">{stats.xpPoints}</p>
             </div>
           </div>
@@ -92,111 +132,128 @@ export default function DashboardPage() {
           <div className="flex items-center space-x-2">
             <Calendar className="h-4 w-4 text-blue-700" />
             <div>
-              <p className="text-sm text-muted-foreground">Day Streak</p>
-              <p className="text-2xl font-bold text-blue-700">{stats.streakDays} days</p>
+              <p className="text-sm text-muted-foreground">Serie dni</p>
+              <p className="text-2xl font-bold text-blue-700">{stats.streakDays} dni</p>
             </div>
           </div>
         </Card>
         <Card className="p-4">
           <div className="flex items-center space-x-2">
-            <BookCheck className="h-4 w-4 text-blue-700" />
+            <BookOpen className="h-4 w-4 text-blue-700" />
             <div>
-              <p className="text-sm text-muted-foreground">Completed Lessons</p>
-              <p className="text-2xl font-bold text-blue-700">{stats.completedLessons}/{stats.totalLessons}</p>
+              <p className="text-sm text-muted-foreground">Łącznie lekcji</p>
+              <p className="text-2xl font-bold text-blue-700">{stats.totalLessons}</p>
             </div>
           </div>
         </Card>
-      </div>
+      </div> */}
 
       {/* Next Lesson Card */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <Card className="col-span-2 p-6">
-          <h2 className="text-xl font-semibold text-blue-700 mb-4">Next Lesson</h2>
-          <div className="flex items-start space-x-4">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Clock className="h-6 w-6 text-blue-700" />
+          <h2 className="text-xl font-semibold text-blue-700 mb-4">Następna lekcja</h2>
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700"></div>
             </div>
-            <div className="flex-1">
-              <h3 className="font-medium text-blue-700">{stats.nextLesson.title}</h3>
-              <p className="text-sm text-muted-foreground mb-2">{stats.nextLesson.time}</p>
-              <div className="flex items-center space-x-3 text-sm">
-                <GraduationCap className="h-4 w-4 text-blue-700" />
-                <span className="text-blue-700">{stats.nextLesson.teacherName}</span>
+          ) : nextLesson ? (
+            <div className="flex items-start space-x-4">
+              <div className="p-3 bg-blue-100 rounded-lg">
+                <Clock className="h-6 w-6 text-blue-700" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-medium text-blue-700">{nextLesson.title}</h3>
+                <p className="text-sm text-muted-foreground mb-2">
+                  {formatPolishDate(DateTime.fromISO(nextLesson.date).setZone("Europe/Warsaw"))} — {nextLesson.duration} min
+                </p>
+                <p className="text-sm text-blue-600 font-medium">
+                  {formatTimeUntil(nextLesson.date)}
+                </p>
               </div>
             </div>
-            <Button 
-              onClick={handleJoinLesson}
-              disabled={stats.nextLesson.status === "ended"}
-              className="bg-blue-700 hover:bg-blue-800 text-white"
-            >
-              Join Lesson
-            </Button>
-          </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground mb-4">Brak nadchodzących lekcji</p>
+              <Button 
+                onClick={() => router.push('/book')}
+                className="bg-blue-700 hover:bg-blue-800 text-white"
+              >
+                Zarezerwuj nową lekcję
+              </Button>
+            </div>
+          )}
         </Card>
 
         {/* Quick Actions Card */}
         <Card className="p-6">
-          <h2 className="text-xl font-semibold text-blue-700 mb-4">Quick Actions</h2>
+          <h2 className="text-xl font-semibold text-blue-700 mb-4">Szybkie akcje</h2>
           <div className="space-y-3">
             <Button 
               variant="outline" 
               className="w-full justify-between border-blue-200 hover:bg-blue-50"
-              onClick={() => router.push('/student/courses')}
+              onClick={() => router.push('/student/lessons')}
             >
-              Browse Courses <ArrowRight className="h-4 w-4 text-blue-700" />
+              Moje lekcje <ArrowRight className="h-4 w-4 text-blue-700" />
             </Button>
             <Button 
               variant="outline" 
               className="w-full justify-between border-blue-200 hover:bg-blue-50"
-              onClick={() => router.push('/student/schedule')}
+              onClick={() => router.push('/book')}
             >
-              Schedule Lesson <ArrowRight className="h-4 w-4 text-blue-700" />
+              Zarezerwuj lekcję <ArrowRight className="h-4 w-4 text-blue-700" />
             </Button>
             <Button 
               variant="outline" 
               className="w-full justify-between border-blue-200 hover:bg-blue-50"
-              onClick={() => router.push('/student/resources')}
+              onClick={() => router.push('/student/payments')}
             >
-              View Resources <ArrowRight className="h-4 w-4 text-blue-700" />
+              Zobacz płatności <ArrowRight className="h-4 w-4 text-blue-700" />
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full justify-between border-blue-200 hover:bg-blue-50"
+              onClick={() => router.push('/student/support')}
+            >
+              Wsparcie <ArrowRight className="h-4 w-4 text-blue-700" />
             </Button>
           </div>
         </Card>
       </div>
 
-      {/* Recent Courses */}
-      <div>
+      {/* Recent Lessons */}
+      {/* <div>
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-blue-700">Recent Courses</h2>
+          <h2 className="text-xl font-semibold text-blue-700">Ostatnie lekcje</h2>
           <Button 
             variant="link" 
             className="text-blue-700"
-            onClick={() => router.push('/student/courses')}
+            onClick={() => router.push('/student/lessons')}
           >
-            View all courses
+            Zobacz wszystkie lekcje
           </Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {recentCourses.map((course) => (
+          {recentLessons.map((lesson) => (
             <Card 
-              key={course.id} 
+              key={lesson.id} 
               className="p-4 hover:shadow-lg transition-shadow cursor-pointer"
-              onClick={() => router.push(`/student/courses/${course.id}`)}
+              onClick={() => router.push(`/student/lessons`)}
             >
               <div className="flex justify-between items-start mb-3">
-                <h3 className="font-medium text-blue-700">{course.title}</h3>
-                <span className="text-xs text-muted-foreground">{course.lastActivity}</span>
+                <h3 className="font-medium text-blue-700">{lesson.title}</h3>
+                <span className="text-xs text-muted-foreground">{lesson.date}</span>
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Progress</span>
-                  <span className="font-medium text-blue-700">{course.progress}%</span>
+                  <span className="text-muted-foreground">Status</span>
+                  <span className="font-medium text-green-600 capitalize">{lesson.status}</span>
                 </div>
-                <Progress value={course.progress} className="h-2 bg-blue-100" />
+                <Progress value={100} className="h-2 bg-green-100" />
               </div>
             </Card>
           ))}
         </div>
-      </div>
+      </div> */}
     </div>
   )
 }
