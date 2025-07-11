@@ -13,7 +13,7 @@ export function Navbar() {
   const router = useRouter();
   
   // Hide navbar on student and admin pages
-  if (pathname === "/student" || pathname === "/admin") {
+  if (pathname === "/student" || pathname?.startsWith("/admin")) {
     return null;
   }
 
