@@ -6,6 +6,7 @@ import { SignInButton, UserButton } from "@clerk/nextjs";
 import { GraduationCap, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
+import Image from "next/image";
 
 export function Navbar() {
   const { isSignedIn, user } = useUser();
@@ -33,8 +34,7 @@ export function Navbar() {
       <div className="container mx-auto flex items-center justify-between h-16 px-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 font-bold text-xl text-blue-700">
-          <GraduationCap className="w-6 h-6 text-blue-600" />
-          Mathbyte
+          <Image src="/LOGOTYP.svg" alt="Logo" width={400} height={100} />
         </Link>
 
         {/* Nawigacja */}
