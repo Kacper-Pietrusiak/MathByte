@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import { SignInButton, UserButton } from "@clerk/nextjs";
-import { GraduationCap, BookOpen } from "lucide-react";
+import {BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
