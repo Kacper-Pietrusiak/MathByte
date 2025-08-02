@@ -13,27 +13,27 @@ export function Pricing() {
       ],
       href: "/book",
     },
+    // {
+    //   title: "Pakiet 4 lekcji",
+    //   price: "280 PLN",
+    //   description: "4×60 minut • ważne przez 30 dni",
+    //   features: [
+    //     "Oszczędzasz 15% względem pojedynczych lekcji — to korzystny wybór przy regularnej nauce.",
+    //     "Masz pierwszeństwo w rezerwacji terminów na cały miesiąc.",
+    //     "Możesz uczyć się raz w tygodniu lub intensywniej przed egzaminem.",
+    //     "Regularność = lepsze efekty i trwałe zrozumienie materiału.",
+    //   ],
+    //   href: "/book",
+    // },
     {
-      title: "Pakiet 4 lekcji",
-      price: "280 PLN",
-      description: "4×60 minut • ważne przez 30 dni",
-      features: [
-        "Oszczędzasz 15% względem pojedynczych lekcji — to korzystny wybór przy regularnej nauce.",
-        "Masz pierwszeństwo w rezerwacji terminów na cały miesiąc.",
-        "Możesz uczyć się raz w tygodniu lub intensywniej przed egzaminem.",
-        "Regularność = lepsze efekty i trwałe zrozumienie materiału.",
-      ],
-      href: "/book",
-    },
-    {
-      title: "Pełna ścieżka (8 lekcji)",
+      title: "Pakiet kursowy",
       price: "Spytaj o dostepność",
       description: "Kompletny program",
       features: [
-        "Najlepszy wybór dla uczniów chcących przejść przez cały dział lub przygotować się kompleksowo do egzaminu.",
+        "Najlepszy wybór dla uczniów chcących przyswoić nową i innowacyjną wiedzę w dziedzinie informatyki i technologii.",
         "Dostęp do bonusowych materiałów: PDF, quizy, zadania z odpowiedziami, nagrania (opcjonalnie).",
         "Zajęcia są ułożone w logiczny program: od podstaw po poziom zaawansowany.",
-        "Możliwość dopasowania ścieżki do celu: matura, egzamin 8-klasisty, poprawa ocen lub rozwój pasji.",
+        "Możliwość dopasowania ścieżki do celu: programowanie, obsługa komputera, IOT",
       ],
       href: "/book",
     },
@@ -43,11 +43,11 @@ export function Pricing() {
     <section id="pricing" className="py-20 bg-black text-white">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold text-center mb-12">Cennik</h2>
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="flex flex-col md:flex-row justify-center items-stretch h-full min-h-[500px]">
           {plans.map((plan) => (
             <div
               key={plan.title}
-              className="bg-gray-900 rounded-xl shadow-lg p-8 flex flex-col justify-between border border-gray-700"
+              className="bg-gray-900 rounded-xl shadow-lg p-8 flex flex-col justify-between border border-gray-700 max-w-[500px] w-full mx-auto h-full min-h-[500px]"
             >
               <div>
                 <h3 className="text-2xl font-bold mb-4 text-center">
