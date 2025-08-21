@@ -28,7 +28,7 @@ export async function GET(req: Request) {
 
   try {
     const startISO = `${date}T14:00:00.000Z`; // 16:00 Warsaw
-    const endISO = `${date}T17:00:00.000Z`;   // 19:00 Warsaw
+    const endISO = `${date}T16:00:00.000Z`;   // 18:00 Warsaw
 
     const response = await calendar.freebusy.query({
       requestBody: {
