@@ -51,7 +51,7 @@ export async function GET(req: Request) {
       timeZone: "Europe/Warsaw",
     });
 
-    const slots = [14, 15, 16].map((h) => {
+    const slots = [14, 15].map((h) => {
       const start = new Date(`${date}T${String(h).padStart(2, '0')}:00:00.000Z`);
       const end = new Date(start.getTime() + 60 * 60 * 1000);
 
